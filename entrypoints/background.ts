@@ -89,7 +89,10 @@ export default defineBackground(() => {
         if (message.type === "GET_USER") {
           const userStorage = await browser.storage.local
             .get("user")
-            .then((res) => res as User);
+            .then((res) => res as User | null);
+          if (!userStorage) {
+            return null;
+          }
           const userApi = await axios
             .get(`${import.meta.env.WXT_API_URL}/user/${userStorage.id}`)
             .then(
