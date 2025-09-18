@@ -5,7 +5,10 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   manifest: {
     permissions: ["activeTab", "sidePanel", "storage"],
-    action: {},
+    action: {
+      default_title: "YeetIt Sidepanel",
+    },
+    version: "1.0.0",
     name: "YeetIt",
     description: "YeetIt",
   },
