@@ -1,6 +1,7 @@
 import { browser } from "wxt/browser";
 import { SidepanelMessage } from "./type";
 import axios from "axios";
+import { User } from "@/lib/type";
 
 export default defineBackground(() => {
   browser.sidePanel
@@ -86,10 +87,24 @@ export default defineBackground(() => {
         }
 
         if (message.type === "GET_USER") {
-          const resp = await browser.storage.local
+          const userStorage = await browser.storage.local
             .get("user")
-            .then((res) => res);
-          return resp.user || null;
+            .then((res) => res as User);
+          const userApi = await axios
+            .get(`${import.meta.env.WXT_API_URL}/user/${userStorage.id}`)
+            .then(
+              (res) =>
+                res.data as {
+                  user_id: string;
+                  name: string;
+                }
+            );
+          return userApi
+            ? {
+                displayName: userApi.name,
+                id: userApi.user_id,
+              }
+            : null;
         }
       };
 
