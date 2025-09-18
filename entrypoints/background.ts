@@ -101,7 +101,8 @@ export default defineBackground(() => {
                   user_id: string;
                   name: string;
                 }
-            );
+            )
+            .catch(() => null);
           return userApi
             ? {
                 displayName: userApi.name,
