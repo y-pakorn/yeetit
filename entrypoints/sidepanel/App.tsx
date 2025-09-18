@@ -116,7 +116,10 @@ function CommentItem({ comment }: { comment: Comment }) {
   const { love: loveMutation, unlove: unloveMutation } = useLove({
     commentId: comment.id,
     onSuccess: (data) => {
-      setLove(data);
+      setLove((ol) => ({
+        isLoved: data.isLoved,
+        love: data.love ?? ol.love,
+      }));
     },
   });
 
