@@ -63,21 +63,23 @@ export default defineBackground(() => {
 
         if (message.type === "REGISTER_USER") {
           try {
-            const name = await axios
-              .get(`${import.meta.env.WXT_API_URL}/generate-name`)
-              .then((res) => res.data.name as string);
-            const userId = await axios
-              .post(`${import.meta.env.WXT_API_URL}/register-insecure`, {
-                username: name,
-              })
-              .then((res) => res.data.user_id as string);
+            const user = await axios
+              .post(`${import.meta.env.WXT_API_URL}/register-insecure`)
+              .then(
+                (res) =>
+                  res.data as {
+                    user_id: string;
+                    name: string;
+                  }
+              )
+              .then((d) => ({
+                displayName: d.name,
+                id: d.user_id,
+              }));
             await browser.storage.local.set({
-              user: {
-                displayName: name,
-                id: userId,
-              },
+              user,
             });
-            return { displayName: name, id: userId };
+            return user;
           } catch (error: unknown) {
             console.error("Error getting user:", error);
           }
