@@ -35,8 +35,6 @@ export default function App() {
   const currentTab = useCurrentTab();
   const comments = useComments({ url: currentTab?.cleanedUrl });
 
-  console.log(comments.data);
-
   return (
     <>
       <main className="p-3 space-y-4 text-base">
@@ -142,8 +140,8 @@ function CommentItem({ comment }: { comment: Comment }) {
       </div>
       <div className="text-xs text-muted-foreground flex items-center gap-1">
         <div className="line-clamp-1">
-          {dayjs(comment.created_at).format("YYYY-MM-DD HH:mm:ss")} (
-          {dayjs(comment.created_at).fromNow()})
+          {dayjs.utc(comment.created_at).format("YYYY-MM-DD HH:mm:ss")} (
+          {dayjs.utc(comment.created_at).fromNow()})
         </div>
         <div className="flex-1" />
         <Button
