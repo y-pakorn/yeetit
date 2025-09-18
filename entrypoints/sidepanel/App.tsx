@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -16,6 +17,7 @@ import {
   RiArrowUpLine,
   RiHeartFill,
   RiLoader2Line,
+  RiRefreshLine,
   RiStarFill,
   RiThumbDownFill,
   RiThumbUpFill,
@@ -32,11 +34,13 @@ import { dayjs } from "@/lib/dayjs";
 import { Comment } from "@/lib/type";
 import { useLove } from "@/hooks/use-love";
 import { useState } from "react";
+import { useRefreshUser } from "@/hooks/use-refresh-user";
 
 export default function App() {
   const user = useUser();
   const currentTab = useCurrentTab();
   const comments = useComments({ url: currentTab?.cleanedUrl });
+  const refreshUser = useRefreshUser();
 
   return (
     <>
@@ -58,6 +62,12 @@ export default function App() {
                 ) : (
                   user.data.displayName
                 )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => refreshUser.mutate()}>
+                <RiRefreshLine
+                  className={cn(refreshUser.isPending && "animate-spin")}
+                />
+                Rerandomize User
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
