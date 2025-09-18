@@ -10,4 +10,8 @@ export interface Comment {
   comment: string;
   vote: number;
   user_name: string;
+  up: number;
+  down: number;
+  created_at: string;
+  id: string;
 }

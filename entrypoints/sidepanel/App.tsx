@@ -10,21 +10,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { RiAddLine, RiStarFill, RiUserFill } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiArrowDownLine,
+  RiArrowUpLine,
+  RiLoader2Line,
+  RiStarFill,
+  RiUserFill,
+} from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import _ from "lodash";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { AddCommentDialog } from "@/components/add-comment-dialog";
 import { Toaster } from "@/components/ui/sonner";
 import { Fragment } from "react/jsx-runtime";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { dayjs } from "@/lib/dayjs";
+import { Comment } from "@/lib/type";
+import { useUpdown } from "@/hooks/use-updown";
+import { useState } from "react";
 
 export default function App() {
   const user = useUser();
@@ -86,32 +90,7 @@ export default function App() {
           ) : comments.data?.length ? (
             comments.data?.map((comment, i, cs) => (
               <Fragment key={i}>
-                <div key={i} className="space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <RiUserFill className="size-7 rounded-full bg-muted-foreground/10 p-1" />
-                    <div className="text-sm font-medium">
-                      {comment.user_name}
-                    </div>
-                    {comment.vote && (
-                      <div className="flex items-center gap-0.5 ml-auto">
-                        {_.range(5).map((i) => (
-                          <RiStarFill
-                            key={i}
-                            className={cn(
-                              "size-3.5",
-                              comment.vote >= i + 1
-                                ? "text-yellow-500"
-                                : "text-gray-300"
-                            )}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="whitespace-pre-wrap max-h-[200px] overflow-y-auto">
-                    {comment.comment}
-                  </div>
-                </div>
+                <CommentItem comment={comment} />
                 {i !== cs.length - 1 && <Separator />}
               </Fragment>
             ))
@@ -124,5 +103,76 @@ export default function App() {
       </main>
       <Toaster />
     </>
+  );
+}
+
+function CommentItem({ comment }: { comment: Comment }) {
+  const [upCount, setUpCount] = useState(comment.up);
+  const [downCount, setDownCount] = useState(comment.down);
+
+  const { up, down } = useUpdown({
+    commentId: comment.id,
+    onSuccess: (data) => {
+      setUpCount(data.up);
+      setDownCount(data.down);
+    },
+  });
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        <RiUserFill className="size-7 rounded-full bg-muted-foreground/10 p-1" />
+        <div className="text-sm font-medium">{comment.user_name}</div>
+        {comment.vote && (
+          <div className="flex items-center gap-0.5 ml-auto">
+            {_.range(5).map((i) => (
+              <RiStarFill
+                key={i}
+                className={cn(
+                  "size-3.5",
+                  comment.vote >= i + 1 ? "text-yellow-500" : "text-gray-300"
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="whitespace-pre-wrap max-h-[200px] overflow-y-auto">
+        {comment.comment}
+      </div>
+      <div className="text-xs text-muted-foreground flex items-center gap-1">
+        <div className="line-clamp-1">
+          {dayjs(comment.created_at).format("YYYY-MM-DD HH:mm:ss")} (
+          {dayjs(comment.created_at).fromNow()})
+        </div>
+        <div className="flex-1" />
+        <Button
+          size="xs"
+          variant="ghost"
+          onClick={() => up.mutate(comment.id)}
+          disabled={down.isPending || comment.up !== upCount}
+        >
+          {up.isPending ? (
+            <RiLoader2Line className="animate-spin" />
+          ) : (
+            <RiArrowUpLine />
+          )}
+          {upCount}
+        </Button>
+        <Button
+          size="xs"
+          variant="ghost"
+          onClick={() => down.mutate(comment.id)}
+          disabled={down.isPending || comment.down !== downCount}
+        >
+          {down.isPending ? (
+            <RiLoader2Line className="animate-spin" />
+          ) : (
+            <RiArrowDownLine />
+          )}
+          {downCount}
+        </Button>
+      </div>
+    </div>
   );
 }
