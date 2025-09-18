@@ -21,16 +21,9 @@ export type BackgroundMessage =
       title: string;
     };
 
-export type SidepanelMessage =
-  | {
-      type: "GET_ACTIVE_TAB";
-    }
-  | {
-      type: "REGISTER_USER";
-    }
-  | {
-      type: "GET_USER";
-    };
+export type SidepanelMessage = {
+  type: "GET_ACTIVE_TAB";
+};
 
 export enum MessageFrom {
   contentScript = "contentScript",

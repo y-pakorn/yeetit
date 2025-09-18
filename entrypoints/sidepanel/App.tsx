@@ -14,8 +14,11 @@ import {
   RiAddLine,
   RiArrowDownLine,
   RiArrowUpLine,
+  RiHeartFill,
   RiLoader2Line,
   RiStarFill,
+  RiThumbDownFill,
+  RiThumbUpFill,
   RiUserFill,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
@@ -27,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { dayjs } from "@/lib/dayjs";
 import { Comment } from "@/lib/type";
-import { useUpdown } from "@/hooks/use-updown";
+import { useLove } from "@/hooks/use-love";
 import { useState } from "react";
 
 export default function App() {
@@ -39,7 +42,7 @@ export default function App() {
     <>
       <main className="p-3 space-y-4 text-base">
         <div className="flex items-center justify-between gap-2">
-          <div className="text-2xl font-semibold">Yeetit</div>
+          <div className="text-2xl font-semibold">WorthIt</div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon">
@@ -75,7 +78,7 @@ export default function App() {
           )}
         </Card>
         <div className="flex items-center justify-between gap-2">
-          <div className="text-xl font-semibold">Comments</div>
+          <div className="text-xl font-semibold">Is it worth it?</div>
           <AddCommentDialog url={currentTab?.cleanedUrl}>
             <Button size="icon" variant="outline">
               <RiAddLine />
@@ -105,14 +108,15 @@ export default function App() {
 }
 
 function CommentItem({ comment }: { comment: Comment }) {
-  const [upCount, setUpCount] = useState(comment.up);
-  const [downCount, setDownCount] = useState(comment.down);
+  const [love, setLove] = useState({
+    love: comment.love,
+    isLoved: false,
+  });
 
-  const { up, down } = useUpdown({
+  const { love: loveMutation, unlove: unloveMutation } = useLove({
     commentId: comment.id,
     onSuccess: (data) => {
-      setUpCount(data.up);
-      setDownCount(data.down);
+      setLove(data);
     },
   });
 
@@ -121,19 +125,31 @@ function CommentItem({ comment }: { comment: Comment }) {
       <div className="flex items-center gap-2 flex-wrap">
         <RiUserFill className="size-7 rounded-full bg-muted-foreground/10 p-1" />
         <div className="text-sm font-medium">{comment.user_name}</div>
-        {comment.vote && (
-          <div className="flex items-center gap-0.5 ml-auto">
-            {_.range(5).map((i) => (
-              <RiStarFill
-                key={i}
-                className={cn(
-                  "size-3.5",
-                  comment.vote >= i + 1 ? "text-yellow-500" : "text-gray-300"
-                )}
-              />
-            ))}
-          </div>
-        )}
+
+        <div className="flex items-center gap-2 ml-auto">
+          {[
+            {
+              label: "Yes",
+              icon: RiThumbUpFill,
+              color: "text-green-400",
+              value: true,
+            },
+            {
+              label: "No",
+              icon: RiThumbDownFill,
+              color: "text-red-400",
+              value: false,
+            },
+          ].map((i) => (
+            <i.icon
+              key={i.label}
+              className={cn(
+                comment.vote === i.value ? i.color : "text-gray-300",
+                "size-5"
+              )}
+            />
+          ))}
+        </div>
       </div>
       <div className="whitespace-pre-wrap max-h-[200px] overflow-y-auto">
         {comment.comment}
@@ -147,28 +163,23 @@ function CommentItem({ comment }: { comment: Comment }) {
         <Button
           size="xs"
           variant="ghost"
-          onClick={() => up.mutate(comment.id)}
-          disabled={down.isPending || comment.up !== upCount}
+          onClick={() => {
+            if (love.isLoved) {
+              unloveMutation.mutate(comment.id);
+            } else {
+              loveMutation.mutate(comment.id);
+            }
+          }}
+          disabled={loveMutation.isPending || unloveMutation.isPending}
         >
-          {up.isPending ? (
+          {loveMutation.isPending || unloveMutation.isPending ? (
             <RiLoader2Line className="animate-spin" />
           ) : (
-            <RiArrowUpLine />
+            <RiHeartFill
+              className={cn(love.isLoved ? "text-pink-400" : "text-gray-300")}
+            />
           )}
-          {upCount}
-        </Button>
-        <Button
-          size="xs"
-          variant="ghost"
-          onClick={() => down.mutate(comment.id)}
-          disabled={down.isPending || comment.down !== downCount}
-        >
-          {down.isPending ? (
-            <RiLoader2Line className="animate-spin" />
-          ) : (
-            <RiArrowDownLine />
-          )}
-          {downCount}
+          {love.love}
         </Button>
       </div>
     </div>

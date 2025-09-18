@@ -46,6 +46,8 @@ export default defineBackground(() => {
   // Listen for messages from sidepanel
   browser.runtime.onMessage.addListener(
     (message: SidepanelMessage, _sender, sendResponse) => {
+      console.log("MESSAGE", message);
+
       const handleMessage = async () => {
         if (message.type === "GET_ACTIVE_TAB") {
           try {
@@ -60,55 +62,6 @@ export default defineBackground(() => {
           } catch (error: unknown) {
             console.error("Error getting active tab:", error);
           }
-        }
-
-        if (message.type === "REGISTER_USER") {
-          try {
-            const user = await axios
-              .post(`${import.meta.env.WXT_API_URL}/register-insecure`)
-              .then(
-                (res) =>
-                  res.data as {
-                    user_id: string;
-                    name: string;
-                  }
-              )
-              .then((d) => ({
-                displayName: d.name,
-                id: d.user_id,
-              }));
-            await browser.storage.local.set({
-              user,
-            });
-            return user;
-          } catch (error: unknown) {
-            console.error("Error getting user:", error);
-          }
-        }
-
-        if (message.type === "GET_USER") {
-          const userStorage = await browser.storage.local
-            .get("user")
-            .then((res) => res as User | null);
-          if (!userStorage) {
-            return null;
-          }
-          const userApi = await axios
-            .get(`${import.meta.env.WXT_API_URL}/user/${userStorage.id}`)
-            .then(
-              (res) =>
-                res.data as {
-                  user_id: string;
-                  name: string;
-                }
-            )
-            .catch(() => null);
-          return userApi
-            ? {
-                displayName: userApi.name,
-                id: userApi.user_id,
-              }
-            : null;
         }
       };
 

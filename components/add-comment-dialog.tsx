@@ -23,15 +23,15 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import _ from "lodash";
-import { RiStarFill } from "react-icons/ri";
+import { RiStarFill, RiThumbDownFill, RiThumbUpFill } from "react-icons/ri";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
-  comment: z.string().min(1),
-  vote: z.number().min(1).max(5).optional().nullable(),
+  comment: z.string(),
+  vote: z.boolean(),
 });
 
 export function AddCommentDialog({
@@ -79,53 +79,62 @@ export function AddCommentDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
-              name="comment"
+              name="vote"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Comment</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Enter your comment here"
-                    />
-                  </FormControl>
+                  <div className="flex items-center gap-2 justify-between">
+                    <FormLabel>Is it worth it?</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        {[
+                          {
+                            label: "Yes",
+                            icon: RiThumbUpFill,
+                            value: true,
+                            color: "text-green-400",
+                          },
+                          {
+                            label: "No",
+                            icon: RiThumbDownFill,
+                            value: false,
+                            color: "text-red-400",
+                          },
+                        ].map((i) => (
+                          <i.icon
+                            key={i.label}
+                            className={cn(
+                              "size-6",
+                              field.value !== undefined &&
+                                field.value === i.value
+                                ? i.color
+                                : "text-gray-300"
+                            )}
+                            onClick={() => field.onChange(i.value)}
+                          />
+                        ))}
+                      </div>
+                    </FormControl>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="vote"
+              name="comment"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rating</FormLabel>
+                  <div>
+                    <FormLabel>Comment (Optional)</FormLabel>
+                  </div>
                   <FormControl>
-                    <div className="flex items-center gap-2">
-                      {_.range(5).map((i) => (
-                        <RiStarFill
-                          key={i}
-                          className={cn(
-                            "size-6",
-                            field.value && field.value >= i + 1
-                              ? "text-yellow-500"
-                              : "text-gray-300"
-                          )}
-                          onClick={() => field.onChange(i + 1)}
-                        />
-                      ))}
-                      <Button
-                        variant="outline"
-                        className="ml-auto"
-                        size="sm"
-                        type="button"
-                        onClick={() => field.onChange(undefined)}
-                      >
-                        None
-                      </Button>
-                    </div>
+                    <Textarea
+                      {...field}
+                      placeholder="Enter your comment here"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -6,11 +6,11 @@ export default defineConfig({
   manifest: {
     permissions: ["activeTab", "sidePanel", "storage", "tabs"],
     action: {
-      default_title: "YeetIt Sidepanel",
+      default_title: "WorthIt Sidepanel",
     },
     version: "1.0.0",
-    name: "YeetIt",
-    description: "YeetIt",
+    name: "WorthIt",
+    description: "Is it worth it?",
   },
   vite: () => ({
     plugins: [react()],

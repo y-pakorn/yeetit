@@ -4,14 +4,13 @@ export interface User {
 }
 
 export interface Comment {
+  id: string;
   user_id: string;
   reverse_domain: string;
   clean_path: string;
   comment: string;
-  vote: number;
+  vote: boolean;
   user_name: string;
-  up: number;
-  down: number;
+  love: number;
   created_at: string;
-  id: string;
 }

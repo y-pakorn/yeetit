@@ -1,6 +1,6 @@
-# YeetIt
+# WorthIt
 
-Yeet it bro
+Is it worth it?
 
 ## How to run
 
