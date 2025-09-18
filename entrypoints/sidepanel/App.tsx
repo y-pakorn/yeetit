@@ -100,7 +100,7 @@ export default function App() {
             _.range(5).map((i) => <Skeleton className="w-full h-14" key={i} />)
           ) : comments.data?.length ? (
             comments.data?.map((comment, i, cs) => (
-              <Fragment key={i}>
+              <Fragment key={comment.id}>
                 <CommentItem comment={comment} />
                 {i !== cs.length - 1 && <Separator />}
               </Fragment>
